@@ -34,15 +34,15 @@ class InputHelper:
         self._action_chains = ActionChains(driver)
         """The ActionChains instance for this class instance"""
 
-    def type_into_element(self, element: WebElement, text: str, delay: Union[float, None] = None, tab_off: Union[bool, None] = False, disable_realistic_typing: bool = False, clear_first: bool = True):
+    def type_into_element(self, element: WebElement, text: str, delay: float = 0.1, tab_off: Union[bool, None] = False, disable_realistic_typing: bool = True, clear_first: bool = True):
         """Types into an input element in a realistic manner, unless web driver is remote.
 
         Args:
             element (WebElement): The element to type into.
             text (str): The text to type.
-            delay (float, optional): The number of seconds to delay after typing. Defaults to None.
+            delay (float, optional): The number of seconds to delay after typing. Defaults to 0.1 second.
             tab_off (bool, optional): Indicates whether to tab off the field after typing, and delay. Defaults to False.
-            disable_realistic_typing (bool, optional): Indicates whether to disable typing in a 'realistic' manner when not remote. Defaults to False.
+            disable_realistic_typing (bool, optional): Indicates whether to disable typing in a 'realistic' manner when not remote. Defaults to True.
             clear_first (bool, optional): Indicates whether to clear the element first. Defaults to True.
         """
         # If text is None then use empty string
@@ -60,23 +60,26 @@ class InputHelper:
         self._action_chains.move_to_element(element)
         self._action_chains.click()
         self._action_chains.perform()
-
+        # this pause was added to avoid a scenario where its is not ready to type and to avoid incorrect characters being typed in.
+        # This was observed in a test that was typing into a field and then immediately tabbing off, which caused the tab to be typed into the field instead of tabbing off.
+        self._action_chains.pause(delay)
         # Now type each character
         self.type(text, disable_realistic_typing)
 
         if delay:
+            # after typing into the field it waits before tabbing off
             self._action_chains.pause(delay)
             self._action_chains.perform()
 
         if tab_off:
             self.type_tab()
 
-    def type(self, text: str, disable_realistic_typing: bool = False):
+    def type(self, text: str, disable_realistic_typing: bool = True):
         """Types into the currently focused element in a realistic manner, unless our webdriver is remote, then just sends the complete string.
 
         Args:
             text (str): The text to type.
-            disable_realistic_typing (bool, optional): Indicates whether to disable typing in a 'realistic' manner when not remote. Defaults to False.
+            disable_realistic_typing (bool, optional): Indicates whether to disable typing in a 'realistic' manner when not remote. Defaults to True.
         """
 
         # If we are remote, then typing a character at a time involves a roundtrip for every character.

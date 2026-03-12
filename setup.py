@@ -13,7 +13,7 @@ with open('LICENSE', encoding = 'utf-8') as f:
 
 setup(
     name='pyseext',
-    version='1.0.0',
+    version='1.3.0',
     description='Python Selenium ExtJS - package for helping interact with an ExtJS application from Python using Selenium',
     long_description=readme,
     author='Martyn West',

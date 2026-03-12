@@ -105,7 +105,19 @@ globalThis.PySeExt.GridHelper = {
             rowIndex = me.__findRowIndex(rowData, store);
 
             if (rowIndex !== -1) {
-                return store.getAt(rowIndex).getData();
+                var data = store.getAt(rowIndex).getData();
+                var converted = {};
+                Object.keys(data).forEach(function (key) {
+                    var value = data[key];
+                    if (value instanceof Date) {
+                        // Convert to ISO 8601 string, which Python can parse easily
+                        converted[key] = value.toLocaleString("en-GB", { timeZone: "Europe/London" });
+                    } else {
+                        converted[key] = value;
+                    }
+                });
+
+                return converted;
             }
         }
 
